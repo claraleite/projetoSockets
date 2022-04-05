@@ -1,7 +1,7 @@
-from random import random
 from socket import socket, AF_INET, SOCK_DGRAM
 from threading import Thread
 from time import sleep
+import random
 
 def read_file(nameFile):
     file = open(nameFile,'r')
@@ -44,7 +44,7 @@ class Game:
         self.numPlayers = 0
         self.maxPlayers = 2
         self.numQuest = 3
-        self.timeLimit = 30
+        self.timeLimit = 10
 
     def start(self):
         self.selectQuest()
@@ -71,8 +71,10 @@ class Game:
             print(line)
 
     def selectQuest(self):
-        for item in self.dataQuest:
-            self.listQuest.append(item)
+        randomlist = random.sample(range(0,len(self.dataQuest)), self.numQuest)
+        for i in randomlist:
+            self.listQuest.append(self.dataQuest[i])
+        print(self.listQuest)
 
     def round(self, round):
         self.isOpen = True
@@ -80,7 +82,6 @@ class Game:
             quest, ans = self.listQuest[round]
             send_message(self.socket,key, quest)
             self.players[key][1][self.currentRound] = [0]
-        #Thread(target=self.timer, args=()).start()
         self.timer()
         self.currentRound+=1
 
@@ -107,8 +108,6 @@ class Game:
 
 def main():
     questData = read_file('perguntas.txt')
-    #print(questData)
-    print(questData)
     address = ('localhost',9500)
     socket = init_server(address) 
     index = 0 
@@ -118,8 +117,8 @@ def main():
 
     while quiz[index].isFull == False:
         sleep(2)
-    #quiz.selectQuest(questData)
-    quiz[index].ranking()
+
+    #quiz[index].ranking()
     quiz[index].start()
     #sleep(120)
     quiz[index].ranking()
