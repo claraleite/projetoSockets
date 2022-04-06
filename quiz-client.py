@@ -3,7 +3,7 @@ from threading import Thread
 from time import sleep
 
 def listen(socket, quiz, addressServer):
-    while True:
+    while quiz.gameIsOn:
         msg, address = socket.recvfrom(1024)
         if address == addressServer:
             cod, message = msg.decode().split(":")
@@ -39,11 +39,12 @@ class Game:
             mensagem = input("Digite seu nome para entrar no jogo: ")
             mensagem = "100:" + mensagem
             self.socket.sendto(mensagem.encode(), self.addressServer)
-            while(serverReturn):
+            while(serverReturn or playerEnter):
                 print("entrou1")
                 msg, address = self.socket.recvfrom(1024)
                 print(msg)
                 print(address)
+
                 if address == self.addressServer:
                     print("entrou")
                     serverReturn = False
@@ -66,12 +67,13 @@ def main():
     addressServer = ('127.0.0.1',9500)
     print("Bem vindo ao jogo Quiz:\n")
     newGame = input("Deseja iniciar o jogo?(S/N)")
-
+    quiz = []
+    index=0
     while newGame == "S":
-        quiz = Game(UDPSocket, addressServer)
-        quiz.startGame()
-        Thread(target=listen, args=(UDPSocket,quiz,addressServer,)).start()
-        quiz.answerQuest()
+        quiz.append(Game(UDPSocket, addressServer))
+        quiz[index].startGame()
+        Thread(target=listen, args=(UDPSocket,quiz[index],addressServer,)).start()
+        quiz[index].answerQuest()
         newGame = input("Deseja iniciar um novo jogo?(S/N)")
 
 

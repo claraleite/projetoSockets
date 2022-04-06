@@ -79,7 +79,7 @@ class Game:
             message = message + name + "  " + str(point) + "\n"
         for key in self.players:
             send_message(self.socket,key, message)
-            send_message(self.socket,key, "500: FIN")
+            #send_message(self.socket,key, "500: FIN")
         print(message)
 
     def selectQuest(self):
