@@ -39,7 +39,7 @@ class Game:
             mensagem = input("Digite seu nome para entrar no jogo: ")
             mensagem = "100:" + mensagem
             self.socket.sendto(mensagem.encode(), self.addressServer)
-            while(serverReturn or playerEnter):
+            while(serverReturn):
                 print("entrou1")
                 msg, address = self.socket.recvfrom(1024)
                 print(msg)
@@ -58,9 +58,9 @@ class Game:
                         print()
                         print(message)
                         print("Em 1 minuto tentaremos conectar novamente!\n\n")
-                        sleep(60)
+                        sleep(60)                     
 
-                
+
 
 def main():
     UDPSocket = socket(AF_INET, SOCK_DGRAM)
@@ -69,7 +69,7 @@ def main():
     newGame = input("Deseja iniciar o jogo?(S/N)")
     quiz = []
     index=0
-    while newGame == "S":
+    while newGame.lower() == "s":
         quiz.append(Game(UDPSocket, addressServer))
         quiz[index].startGame()
         Thread(target=listen, args=(UDPSocket,quiz[index],addressServer,)).start()

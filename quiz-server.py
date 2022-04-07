@@ -73,13 +73,13 @@ class Game:
         for key in self.players:
             ranking.append((self.players[key][0],self.players[key][2]))
         ranking.sort(key = lambda x: x[1],reverse=True)
-        message = "500:Ranking da rodada\n"
+        message = "500:\nRanking da rodada\n"
         for line in ranking:
             name, point = line
             message = message + name + "  " + str(point) + "\n"
+        message = message + "\nAperte ENTER para jogar novamente"
         for key in self.players:
             send_message(self.socket,key, message)
-            #send_message(self.socket,key, "500: FIN")
         print(message)
 
     def selectQuest(self):
