@@ -7,7 +7,10 @@ def read_file(nameFile):
     file = open(nameFile,'r')
     quizQuest = []
     for line in file:
-        quest, answer = line.split(",")
+        linha = line.split(",")
+        answer = linha[-1]
+        separador=","
+        quest = separador.join(linha[:-1])
         quizQuest.append((quest,answer.rstrip().lower()))
     return quizQuest
 
