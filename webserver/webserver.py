@@ -2,6 +2,10 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 from email.utils import formatdate
 import os
+import locale
+import unicodedata
+
+
 
 prefix = {'js': 'text', 'html': 'text', 'plain': 'text', 'css': 'text',
            'png': 'image', 'jpeg': 'image', 'ex-icon': 'image', 'gif': 'image',
@@ -9,6 +13,7 @@ prefix = {'js': 'text', 'html': 'text', 'plain': 'text', 'css': 'text',
 
 class Request:
     def __init__(self, method, path, contenttype, version):
+        
         self.method = method
         self.path = path
         self.version = version
@@ -23,18 +28,27 @@ class Webserver:
     def __init__(self, address, folder, error) -> None:
         self.server = socket(AF_INET, SOCK_STREAM)
         self.address = address
-        self.endereco = address[0]
         self.server.bind(address)
         self.server.listen()
         self.pasta_inspecionada = folder
+        #self.pasta_inspecionada = unicodedata.normalize("NFD", folder)
+        #self.pasta_inspecionada = self.pasta_inspecionada.encode("ascii", "ignore")
+        
         self.pasta_erros = error
+        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
         try:
             os.mkdir(self.pasta_inspecionada)
         except FileExistsError:
             pass
-
+        idx=0
         self.lista_de_documentos = os.listdir(self.pasta_inspecionada)
+        for item in self.lista_de_documentos:
+            if item[0]==".":
+                del(self.lista_de_documentos[idx])
+            idx+=1
+                
+        print(self.lista_de_documentos)
 
     def start(self):
         while True:
@@ -67,7 +81,13 @@ class Webserver:
                 except:
                     print('erro 400\n')
                     try:
-                        self.returnIndex(socket,os.listdir(self.pasta_inspecionada[:-1]+especificacoes.path),especificacoes.path[1:]+"/")
+                        self.lista_de_documentos=os.listdir(self.pasta_inspecionada[:-1]+especificacoes.path)
+                        idx=0
+                        for item in self.lista_de_documentos:
+                            if item[0]==".":
+                                del(self.lista_de_documentos[idx])
+                            idx+=1
+                        self.returnIndex(socket,self.lista_de_documentos,especificacoes.path[1:]+"/")
                     except:
                         self.returnErro(socket, 400)
                     
@@ -106,7 +126,7 @@ class Webserver:
         response = ''
         response += firstLine
         response += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
-        response += f'Server: {self.endereco} (Windows)\r\n'
+        response += f'Server: {self.address[0]} (Windows)\r\n'
         response += f'Content-Length: {os.path.getsize(file)}'
         response += 'Content-Type: text/html\r\n'
         response += '\r\n'
@@ -122,7 +142,7 @@ class Webserver:
         resposta = ''
         resposta += 'HTTP/1.1 200 OK\r\n'
         resposta += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
-        resposta += f'Server: {self.endereco} (Windows)\r\n'
+        resposta += f'Server: {self.address[0]} (Windows)\r\n'
         resposta += 'Content-Type: text/html\r\n'
         resposta += '\r\n'
         socket.send(resposta.encode())
@@ -153,7 +173,7 @@ class Webserver:
             resposta = ''
             resposta += 'HTTP/1.1 200 OK\r\n'
             resposta += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
-            resposta += f'Server: {self.endereco} (Windows)\r\n'
+            resposta += f'Server: {self.address[0]} (Windows)\r\n'
             resposta += f'Content-Length: {os.path.getsize(arquivo)}\r\n'
             resposta += f'Content-Type: {request.contenttype}\r\n'
             resposta += '\r\n'
@@ -185,11 +205,17 @@ def main():
     try:
         file=open('serverconfig.txt','r')
     except:
-        print("Arquivo de configuração do servidor não encontrado.")
-    else:
+        check = False
+        try:
+            file=open('webserver/serverconfig.txt','r')
+        except:
+            print("Arquivo de configuração do servidor não encontrado.")
+        else:
+            check = True
+    if check:
         folder,error = readConfig(file)
         print(folder + "\n" + error)
-        address = ("localhost", 4000)
+        address = ("localhost", 4001)
         server = Webserver(address,folder,error)
         server.start()
 

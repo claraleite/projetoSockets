@@ -1,5 +1,24 @@
-Primeira pergunta?,primeira
-Segunda pergunta?,segunda
-Terceira pergunta?,terceira
-Quarta pergunta?,quarta
-Quinta pergunta?,quinta
+A letra "Dançar contigo me dá Caetano" pertence a que artista (primeiro nome)?,johnny
+A letra "Coube tudo na malinha de mão do meu coração" pertence a que artista (primeiro nome)?,liniker
+A letra "Se vier com amor, bem melhor" pertence a que artista (primeiro nome)?,academia
+A letra "Sinto que você é ligado a mim" pertence a que artista (primeiro nome)?,vanessa
+A letra "Mas a nau naufragou, o sonho acabou" pertence a que artista (primeiro nome)?,donica
+A letra "Nem o sarro arranha a Espanha" pertence a que artista (primeiro nome)?,caetano
+A letra "Mas eu queria ter pra te dar" pertence a que artista (primeiro nome)?,martins
+A letra "Quem vai comprar esse CD sobre uma pessoa só" pertence a que artista (primeiro nome)?,clarice
+A letra "Saudade é pra quem tem" pertence a que artista (primeiro nome)?,marcelo
+A letra "Tem um grito preso na garganta" pertence a que artista (primeiro nome)?,tim
+A letra "Eles são discretos e silenciosos" pertence a que artista (primeiro nome)?,jorge
+A letra "Eu quero ser exorcizado pela água benta" pertence a que artista (primeiro nome)?,martinho
+A letra "Tomou meu coração e sentou na minha mão" pertence a que artista (primeiro nome)?,novos
+A letra "Viver é melhor que sonhar" pertence a que artista (primeiro nome)?,elis
+A letra "Ainda bem que agora encontrei você" pertence a que artista (primeiro nome)?,marisa
+A letra "Que Deus entendeu de dar toda magia" pertence a que artista (primeiro nome)?,gilberto
+A letra "Queria me enjoar de você, mas não consigo" pertence a que artista (primeiro nome)?,joao
+A letra "I don't wanna be you anymore" pertence a que artista (primeiro nome)?,billie
+A letra "Me magoou, me destruiu, me desandou" pertence a que artista (primeiro nome)?,criolo
+A letra "Eu não vou buscar a felicidade em mais ninguém" pertence a que artista (primeiro nome)?,duda
+A letra "But don't you know that only fools are satisfied?" pertence a que artista (primeiro nome)?,billy
+A letra "All things must pass, all things must pass away" pertence a que artista (primeiro nome)?,george
+A letra "You made us feel like we could fly" pertence a que artista (primeiro nome)?,queen
+A letra "The mirror's image, it tells me it's home time" pertence a que artista (primeiro nome)?,arctic

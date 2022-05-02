@@ -21,11 +21,16 @@ def listen(socket, game):
     while game.isRolling:
         msg, end = socket.recvfrom(1024)
         print(f'{msg.decode()} de {end}',end= '\n\n')
-        if end in game.players and game.isRolling:
-            if game.isOpen:
-                game.checkAnswer(msg.decode().lower(), end)
-        else:
-            game.newPlayer(end,msg.decode())  
+        
+        code, msg = msg.decode().split(":")
+        
+        code = int(code)
+        if code == 100 or code==200 or code==400:
+            if end in game.players and game.isRolling:
+                if game.isOpen:
+                    game.checkAnswer(msg.lower(), end)
+            elif code==100:
+                game.newPlayer(end,msg)  
 
 
 def send_message(socket,address, message):
@@ -55,20 +60,27 @@ class Game:
         if self.numPlayers < self.maxPlayers:
             self.players[address] = [name,{},0]
             self.numPlayers += 1
-            send_message(self.socket,address, "\nVocê entrou no jogo!")
+            print("enviou")
+            send_message(self.socket,address, "100:Você entrou no jogo!")
             if self.numPlayers >= self.maxPlayers:
                 self.isFull = True
         else:
             self.isFull = True
-            send_message(self.socket,address, "\nEssa rodada já está cheia")
+            send_message(self.socket,address, "400:Essa rodada já está cheia")
 
     def ranking(self):
         ranking=[]
         for key in self.players:
             ranking.append((self.players[key][0],self.players[key][2]))
         ranking.sort(key = lambda x: x[1],reverse=True)
+        message = "500:\nRanking da rodada\n"
         for line in ranking:
-            print(line)
+            name, point = line
+            message = message + name + "  " + str(point) + "\n"
+        message = message + "\nAperte ENTER para jogar novamente"
+        for key in self.players:
+            send_message(self.socket,key, message)
+        print(message)
 
     def selectQuest(self):
         randomlist = random.sample(range(0,len(self.dataQuest)), self.numQuest)
@@ -80,7 +92,7 @@ class Game:
         self.isOpen = True
         for key in self.players:
             quest, ans = self.listQuest[round]
-            send_message(self.socket,key, quest)
+            send_message(self.socket,key, "200:"+quest)
             self.players[key][1][self.currentRound] = [0]
         self.timer()
         self.currentRound+=1
@@ -112,18 +124,17 @@ def main():
     socket = init_server(address) 
     index = 0 
     quiz = []
-    quiz.append(Game(socket, questData))
-    Thread(target=listen, args=(socket,quiz[index],)).start()
+    while True:
+        quiz.append(Game(socket, questData))
+        Thread(target=listen, args=(socket,quiz[index],)).start()
 
-    while quiz[index].isFull == False:
-        sleep(2)
+        while quiz[index].isFull == False:
+            sleep(2)
 
-    #quiz[index].ranking()
-    quiz[index].start()
-    #sleep(120)
-    quiz[index].ranking()
-    quiz[index].isRolling = False
-    index+=1
+        quiz[index].start()
+        quiz[index].ranking()
+        quiz[index].isRolling = False
+        index+=1
     
 
 if __name__ == '__main__':
