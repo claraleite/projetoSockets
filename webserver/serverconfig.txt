@@ -1,0 +1,2 @@
+pathfolder:/Users/davinovaes/Documents/
+patherror:/Users/davinovaes/Documents/projeto/webserver
