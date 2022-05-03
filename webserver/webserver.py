@@ -72,8 +72,7 @@ class Webserver:
                     
                 except:
                     print('erro 400\n')
-                    self.returnErro(socket, 400)
-                    
+                    self.returnErro(socket, 400)             
 
     def formatMessage(self,msg_http): #Trata a message recebida e retorna um objetivo do tipo Request
         msg_http_tratada = msg_http.split('\r\n')[0].split(' ') #Cria fileList com primeira linha do header
@@ -120,7 +119,6 @@ class Webserver:
         socket.send(response.encode())
         print("enviado")
 
-
     def returnIndex(self, socket, fileList, file):
         header = ''
         header += 'HTTP/1.1 200 OK\r\n'
@@ -149,7 +147,6 @@ class Webserver:
         print(header, payload)
         message = header+payload
         socket.send(message.encode())
-
 
     def returnContent(self, request, socket):
         file = self.pasta_inspecionada + request.path
