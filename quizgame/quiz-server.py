@@ -122,7 +122,7 @@ class Game:
         
 
 def main():
-    questData = read_file('perguntas.txt')
+    questData = read_file('quizgame/perguntas.txt')
     address = ('localhost',9500)
     socket = init_server(address) 
     index = 0 
