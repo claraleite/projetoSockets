@@ -2,10 +2,6 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 from email.utils import formatdate
 import os
-import locale
-import unicodedata
-
-
 
 prefix = {'js': 'text', 'html': 'text', 'plain': 'text', 'css': 'text',
            'png': 'image', 'jpeg': 'image', 'ex-icon': 'image', 'gif': 'image',
@@ -31,11 +27,7 @@ class Webserver:
         self.server.bind(address)
         self.server.listen()
         self.pasta_inspecionada = folder
-        #self.pasta_inspecionada = unicodedata.normalize("NFD", folder)
-        #self.pasta_inspecionada = self.pasta_inspecionada.encode("ascii", "ignore")
-        
         self.pasta_erros = error
-        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
         try:
             os.mkdir(self.pasta_inspecionada)
@@ -61,39 +53,30 @@ class Webserver:
             if msg_http:
                 print(msg_http)
                 try:
-                    especificacoes = self.formatMessage(msg_http)
-                    print(especificacoes)
-                    if especificacoes.path == '/':
+                    request = self.formatMessage(msg_http)
+                    print(request)
+                    if request.path == '/':
                         self.returnIndex(socket, self.lista_de_documentos, '')
 
-                    elif especificacoes.path[1:].split('/')[0] not in self.lista_de_documentos:
+                    elif request.path[1:].split('/')[0] not in self.lista_de_documentos:
                         self.returnErro(socket, 404)
                         print('erro 404\n')
 
-                    elif especificacoes.version.split('/')[1] != '1.1':
+                    elif request.version.split('/')[1] != '1.1':
                         self.returnErro(socket, 505)
                         print('erro 505\n')
 
                     else:
-                        self.returnContent(especificacoes, socket)
+                        self.returnContent(request, socket)
                         print('200 ok\n')
                     
                 except:
                     print('erro 400\n')
-                    try:
-                        self.lista_de_documentos=os.listdir(self.pasta_inspecionada[:-1]+especificacoes.path)
-                        idx=0
-                        for item in self.lista_de_documentos:
-                            if item[0]==".":
-                                del(self.lista_de_documentos[idx])
-                            idx+=1
-                        self.returnIndex(socket,self.lista_de_documentos,especificacoes.path[1:]+"/")
-                    except:
-                        self.returnErro(socket, 400)
+                    self.returnErro(socket, 400)
                     
 
-    def formatMessage(self,msg_http): #Trata a mensagem recebida e retorna um objetivo do tipo Request
-        msg_http_tratada = msg_http.split('\r\n')[0].split(' ') #Cria lista com primeira linha do header
+    def formatMessage(self,msg_http): #Trata a message recebida e retorna um objetivo do tipo Request
+        msg_http_tratada = msg_http.split('\r\n')[0].split(' ') #Cria fileList com primeira linha do header
         print(msg_http_tratada)
         if msg_http_tratada[1] == '/' and 'index.html' in self.lista_de_documentos:
             msg_http_tratada[1] = 'index.html'
@@ -138,63 +121,71 @@ class Webserver:
         print("enviado")
 
 
-    def returnIndex(self, socket, lista, arquivo):
-        resposta = ''
-        resposta += 'HTTP/1.1 200 OK\r\n'
-        resposta += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
-        resposta += f'Server: {self.address[0]} (Windows)\r\n'
-        resposta += 'Content-Type: text/html\r\n'
-        resposta += '\r\n'
-        socket.send(resposta.encode())
-        index_criado = '<!DOCTYPE html>\r\n'
-        index_criado += '<html>\r\n'
-        index_criado += '<head>\r\n'
-        index_criado += '<title> Index ServidorWEB </title>\r\n'
-        index_criado += '</head>\r\n'
-        index_criado += '\r\n'
-        index_criado += '<body>\r\n'
-        index_criado += '<h1>Documentos disponiveis <h1>\r\n'
-        if lista:
-            index_criado += '<ul>\r\n'
-            for documento in lista:
-                if documento.split(".")[0] != 'favicon':
-                    index_criado += f' <li><a href="http://{self.address[0]}:{self.address[1]}/{arquivo}{documento}"' \
-                                    f'>{documento.split(".")[0]}</a></li>\r\n'
-            index_criado += '<ul>\r\n'
-        index_criado += '</body>\r\n'
-        index_criado += '</html>\r\n'
-        print(resposta, index_criado)
-        socket.send(index_criado.encode())
+    def returnIndex(self, socket, fileList, file):
+        header = ''
+        header += 'HTTP/1.1 200 OK\r\n'
+        header += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
+        header += f'Server: {self.address[0]} (Windows)\r\n'
+        header += 'Content-Type: text/html\r\n'
+        header += '\r\n'
+        payload = '<!DOCTYPE html>\r\n'
+        payload += '<html>\r\n'
+        payload += '<head>\r\n'
+        payload += '<title> Index ServidorWEB </title>\r\n'
+        payload += '<meta charset="UTF-8">\r\n'
+        payload += '</head>\r\n'
+        payload += '\r\n'
+        payload += '<body>\r\n'
+        payload += '<h1>Documentos disponiveis <h1>\r\n'
+        if fileList:
+            payload += '<ul>\r\n'
+            for item in fileList:
+                if item.split(".")[0] != 'favicon':
+                    payload += f' <li><a href="http://{self.address[0]}:{self.address[1]}/{file}{item}"' \
+                                    f'>{item.split(".")[0]}</a></li>\r\n'
+            payload += '<ul>\r\n'
+        payload += '</body>\r\n'
+        payload += '</html>\r\n'
+        print(header, payload)
+        message = header+payload
+        socket.send(message.encode())
 
 
     def returnContent(self, request, socket):
-        arquivo = self.pasta_inspecionada + request.path
-        if request.contenttype is not None:
-            resposta = ''
-            resposta += 'HTTP/1.1 200 OK\r\n'
-            resposta += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
-            resposta += f'Server: {self.address[0]} (Windows)\r\n'
-            resposta += f'Content-Length: {os.path.getsize(arquivo)}\r\n'
-            resposta += f'Content-Type: {request.contenttype}\r\n'
-            resposta += '\r\n'
-            socket.send(resposta.encode())
-            print(resposta)
+        file = self.pasta_inspecionada + request.path
+        if request.contenttype != None:
+            header = ''
+            header += 'HTTP/1.1 200 OK\r\n'
+            header += f'Date: {formatdate(localtime=False, usegmt=True)}\r\n'
+            header += f'Server: {self.address[0]} (Windows)\r\n'
+            header += f'Content-Length: {os.path.getsize(file)}\r\n'
+            header += f'Content-Type: {request.contenttype}\r\n'
+            header += '\r\n'
+            socket.send(header.encode())
+            print(header)
         try:
-            arq = open(arquivo, 'rb')
+            arq = open(file, 'rb')
             while True:
-                parte = arq.read(1024)
-                if len(parte) == 0:
+                packet = arq.read(1024)
+                if len(packet) == 0:
                     break
-                socket.send(parte)
-        except PermissionError:
-            caminho = arquivo
-            if self.pasta_inspecionada in caminho:
-                caminho = caminho.split(self.pasta_inspecionada + '/')[1]
-                caminho += '/'
-            if ' ' in caminho:
-                caminho = caminho.split(' ')
-                caminho = '%20'.join(caminho)
-            self.returnIndex(socket, os.listdir(f'{arquivo}'), caminho)
+                socket.send(packet)
+        except:
+            path = file
+            if self.pasta_inspecionada in path:
+                path = path.split(self.pasta_inspecionada + '/')[1]
+                path += '/'
+            if ' ' in path:
+                path = path.split(' ')
+                path = '%20'.join(path)
+            fileList=os.listdir(f'{file}')
+            idx=0
+            for item in fileList:
+                if item[0]==".":
+                    del(fileList[idx])
+                idx+=1
+            print(fileList)
+            self.returnIndex(socket, fileList, path)
 
 def readConfig(file):
     pathfolder = file.readline().split(":")[1].rstrip()
@@ -214,7 +205,6 @@ def main():
             check = True
     if check:
         folder,error = readConfig(file)
-        print(folder + "\n" + error)
         address = ("localhost", 4001)
         server = Webserver(address,folder,error)
         server.start()

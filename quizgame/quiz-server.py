@@ -47,8 +47,8 @@ class Game:
         self.currentRound = 0
         self.listQuest = []
         self.numPlayers = 0
-        self.maxPlayers = 2
-        self.numQuest = 3
+        self.maxPlayers = 5
+        self.numQuest = 5
         self.timeLimit = 10
 
     def start(self):
